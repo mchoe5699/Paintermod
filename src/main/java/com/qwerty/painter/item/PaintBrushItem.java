@@ -1,13 +1,10 @@
 package com.qwerty.painter.item;
 
-import com.qwerty.painter.PainterConfig;
 import com.qwerty.painter.client.ClientHooks;
 import com.qwerty.painter.paint.FaceGeometry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -44,7 +41,6 @@ public class PaintBrushItem extends Item {
         Level level = ctx.getLevel();
         BlockPos pos = ctx.getClickedPos();
         Direction face = ctx.getClickedFace();
-        ItemStack stack = ctx.getItemInHand();
         if (player == null) return InteractionResult.PASS;
 
         if (player.isShiftKeyDown()) {
@@ -55,40 +51,12 @@ public class PaintBrushItem extends Item {
         }
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
-        CompoundTag tag = stack.getOrCreateTag();
-        String dim = level.dimension().location().toString();
-        if (tag.contains("A") && !dim.equals(tag.getString("Dim"))) clearSelection(stack);
-
-        if (!tag.contains("A")) {
-            tag.put("A", NbtUtils.writeBlockPos(pos));
-            tag.putInt("Face", face.get3DDataValue());
-            tag.putString("Dim", dim);
-            player.displayClientMessage(Component.translatable("qwertys_painter.msg.first_point",
-                    pos.getX(), pos.getY(), pos.getZ(), dirName(face)), true);
-            return InteractionResult.SUCCESS;
-        }
-
-        BlockPos a = NbtUtils.readBlockPos(tag.getCompound("A"));
-        Direction f = Direction.from3DDataValue(tag.getInt("Face"));
-        if (pos.equals(a)) {
-            BlockPos b = tag.contains("B") ? NbtUtils.readBlockPos(tag.getCompound("B")) : a;
-            int side = PainterConfig.get(PainterConfig.MAX_REGION_SIDE, 128);
-            int blocks = PainterConfig.get(PainterConfig.MAX_REGION_BLOCKS, 16384);
-            int dx = Math.abs(a.getX() - b.getX()) + 1, dy = Math.abs(a.getY() - b.getY()) + 1, dz = Math.abs(a.getZ() - b.getZ()) + 1;
-            if (Math.max(dx, Math.max(dy, dz)) > side || FaceGeometry.volume(a, b) > blocks) {
-                player.displayClientMessage(Component.translatable("qwertys_painter.msg.region_too_big", side, blocks), true);
-                return InteractionResult.SUCCESS;
-            }
-            ItemStack canvas = PaintCanvasItem.create(a, b, f, dim);
+        RegionSelection.Result r = RegionSelection.click(player, level, pos, face, ctx.getItemInHand());
+        if (r != null) {
+            ItemStack canvas = PaintCanvasItem.create(r.a(), r.b(), r.face(), r.dim());
             if (!player.getInventory().add(canvas)) player.drop(canvas, false);
-            clearSelection(stack);
-            int[] wh = FaceGeometry.regionSize(a, b, f);
-            player.displayClientMessage(Component.translatable("qwertys_painter.msg.canvas_created", wh[0], wh[1], dirName(f)), true);
-        } else {
-            tag.put("B", NbtUtils.writeBlockPos(pos));
-            int[] wh = FaceGeometry.regionSize(a, pos, f);
-            player.displayClientMessage(Component.translatable("qwertys_painter.msg.last_point",
-                    pos.getX(), pos.getY(), pos.getZ(), wh[0], wh[1]), true);
+            int[] wh = FaceGeometry.regionSize(r.a(), r.b(), r.face());
+            player.displayClientMessage(Component.translatable("qwertys_painter.msg.canvas_created", wh[0], wh[1], dirName(r.face())), true);
         }
         return InteractionResult.SUCCESS;
     }
@@ -96,24 +64,14 @@ public class PaintBrushItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (player.isShiftKeyDown() && stack.hasTag() && stack.getTag().contains("A")) {
+        if (player.isShiftKeyDown() && RegionSelection.active(stack)) {
             if (!level.isClientSide) {
-                clearSelection(stack);
+                RegionSelection.clear(stack);
                 player.displayClientMessage(Component.translatable("qwertys_painter.msg.selection_reset"), true);
             }
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
         return InteractionResultHolder.pass(stack);
-    }
-
-    public static void clearSelection(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) return;
-        tag.remove("A");
-        tag.remove("B");
-        tag.remove("Face");
-        tag.remove("Dim");
-        if (tag.isEmpty()) stack.setTag(null);
     }
 
     public static Component dirName(Direction d) {
@@ -122,7 +80,7 @@ public class PaintBrushItem extends Item {
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        return stack.hasTag() && stack.getTag().contains("A");
+        return RegionSelection.active(stack);
     }
 
     @Override

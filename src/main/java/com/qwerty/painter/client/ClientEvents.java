@@ -6,6 +6,7 @@ import com.qwerty.painter.PainterConfig;
 import com.qwerty.painter.PainterMod;
 import com.qwerty.painter.item.PaintBrushItem;
 import com.qwerty.painter.item.PaintCanvasItem;
+import com.qwerty.painter.item.RegionSelection;
 import com.qwerty.painter.paint.FaceData;
 import com.qwerty.painter.paint.FaceGeometry;
 import net.minecraft.client.Minecraft;
@@ -17,8 +18,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -150,22 +149,19 @@ public final class ClientEvents {
     }
 
     private static void renderSelection(Minecraft mc, PoseStack ps, MultiBufferSource.BufferSource buffers, Vec3 cam) {
-        if (mc.player == null) return;
+        if (mc.player == null || mc.level == null) return;
+        String here = mc.level.dimension().location().toString();
         for (InteractionHand hand : InteractionHand.values()) {
             ItemStack stack = mc.player.getItemInHand(hand);
-            if (stack.getItem() instanceof PaintBrushItem) {
-                CompoundTag tag = stack.getTag();
-                if (tag == null || !tag.contains("A")) continue;
-                if (!mc.level.dimension().location().toString().equals(tag.getString("Dim"))) continue;
-                BlockPos a = NbtUtils.readBlockPos(tag.getCompound("A"));
-                BlockPos b = tag.contains("B") ? NbtUtils.readBlockPos(tag.getCompound("B")) : a;
+            if (!(stack.getItem() instanceof PaintBrushItem) && !(stack.getItem() instanceof PaintCanvasItem)) continue;
+            if (RegionSelection.active(stack) && here.equals(RegionSelection.dim(stack))) {
+                BlockPos a = RegionSelection.first(stack), b = RegionSelection.last(stack);
                 drawBox(ps, buffers, cam, a, b, 1f, 0.8f, 0.2f);
                 drawBox(ps, buffers, cam, a, a, 0.2f, 0.9f, 1f);
                 return;
             }
-            if (stack.getItem() instanceof PaintCanvasItem) {
-                PaintCanvasItem.Region r = PaintCanvasItem.region(stack);
-                if (r == null || !mc.level.dimension().location().toString().equals(r.dim())) continue;
+            PaintCanvasItem.Region r = PaintCanvasItem.region(stack);
+            if (r != null && here.equals(r.dim())) {
                 drawBox(ps, buffers, cam, r.a(), r.b(), 0.3f, 1f, 0.4f);
                 return;
             }

@@ -33,11 +33,7 @@ public class PaintCanvasItem extends Item {
 
     public static ItemStack create(BlockPos a, BlockPos b, Direction face, String dim) {
         ItemStack stack = new ItemStack(ModItems.PAINT_CANVAS.get());
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.put("A", NbtUtils.writeBlockPos(a));
-        tag.put("B", NbtUtils.writeBlockPos(b));
-        tag.putInt("Face", face.get3DDataValue());
-        tag.putString("Dim", dim);
+        setRegion(stack, a, b, face, dim);
         return stack;
     }
 
@@ -55,7 +51,18 @@ public class PaintCanvasItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (region(stack) == null) return InteractionResultHolder.pass(stack);
+        if (player.isShiftKeyDown()) {
+            // sneak + right-click air: forget the region / selection, canvas becomes empty again
+            if (!level.isClientSide && (region(stack) != null || RegionSelection.active(stack))) {
+                clearRegion(stack);
+                player.displayClientMessage(Component.translatable("qwertys_painter.msg.canvas_reset"), true);
+            }
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        }
+        if (region(stack) == null) {
+            if (!level.isClientSide) player.displayClientMessage(Component.translatable("qwertys_painter.msg.canvas_empty"), true);
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        }
         if (level.isClientSide) {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientHooks.openFill(hand));
         }
@@ -64,8 +71,48 @@ public class PaintCanvasItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
-        if (ctx.getPlayer() == null) return InteractionResult.PASS;
-        return use(ctx.getLevel(), ctx.getPlayer(), ctx.getHand()).getResult();
+        Player player = ctx.getPlayer();
+        if (player == null) return InteractionResult.PASS;
+        ItemStack stack = ctx.getItemInHand();
+        // a canvas that already has a region opens the fill screen wherever you click
+        if (region(stack) != null || player.isShiftKeyDown()) {
+            return use(ctx.getLevel(), player, ctx.getHand()).getResult();
+        }
+        // an empty canvas picks its own region: first point, last point, first point again
+        Level level = ctx.getLevel();
+        if (level.isClientSide) return InteractionResult.SUCCESS;
+        RegionSelection.Result r = RegionSelection.click(player, level, ctx.getClickedPos(), ctx.getClickedFace(), stack);
+        if (r != null) {
+            setRegion(stack, r.a(), r.b(), r.face(), r.dim());
+            int[] wh = FaceGeometry.regionSize(r.a(), r.b(), r.face());
+            player.displayClientMessage(Component.translatable("qwertys_painter.msg.canvas_ready", wh[0], wh[1],
+                    PaintBrushItem.dirName(r.face())), true);
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    public static void setRegion(ItemStack stack, BlockPos a, BlockPos b, Direction face, String dim) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.put("A", NbtUtils.writeBlockPos(a));
+        tag.put("B", NbtUtils.writeBlockPos(b));
+        tag.putInt("Face", face.get3DDataValue());
+        tag.putString("Dim", dim);
+    }
+
+    public static void clearRegion(ItemStack stack) {
+        RegionSelection.clear(stack);
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return;
+        tag.remove("A");
+        tag.remove("B");
+        tag.remove("Face");
+        tag.remove("Dim");
+        if (tag.isEmpty()) stack.setTag(null);
+    }
+
+    @Override
+    public boolean isFoil(ItemStack stack) {
+        return RegionSelection.active(stack);
     }
 
     @Override
@@ -81,11 +128,13 @@ public class PaintCanvasItem extends Item {
         Region r = region(stack);
         if (r == null) {
             tooltip.add(Component.translatable("qwertys_painter.tooltip.canvas.empty").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("qwertys_painter.tooltip.canvas.empty2").withStyle(ChatFormatting.GRAY));
             return;
         }
         tooltip.add(Component.translatable("qwertys_painter.tooltip.canvas.from", r.a().getX(), r.a().getY(), r.a().getZ()).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("qwertys_painter.tooltip.canvas.to", r.b().getX(), r.b().getY(), r.b().getZ()).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("qwertys_painter.tooltip.canvas.face", PaintBrushItem.dirName(r.face())).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("qwertys_painter.tooltip.canvas.use").withStyle(ChatFormatting.YELLOW));
+        tooltip.add(Component.translatable("qwertys_painter.tooltip.canvas.reset").withStyle(ChatFormatting.GRAY));
     }
 }

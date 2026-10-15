@@ -123,6 +123,7 @@ public final class SelfTestServer {
         player.setItemInHand(InteractionHand.MAIN_HAND, PaintCanvasItem.create(new BlockPos(3, Y, -6), new BlockPos(8, Y + 3, -6),
                 Direction.SOUTH, level.dimension().location().toString()));
         player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(ModItems.PAINT_BRUSH.get()));
+        player.getInventory().setItem(8, new ItemStack(ModItems.PAINT_CANVAS.get()));
         PainterMod.LOGGER.info("SELFTEST server scene ready, picture {}", id);
     }
 

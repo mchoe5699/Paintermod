@@ -13,7 +13,7 @@
   "qwertys_painter.tooltip.brush.2": "첫 지점을 다시 우클릭: 사진 캔버스 생성",
   "qwertys_painter.tooltip.brush.3": "웅크리고 블록 우클릭: 블록 6면 개별 편집",
   "qwertys_painter.tooltip.brush.4": "웅크리고 허공 우클릭: 선택 취소",
-  "qwertys_painter.tooltip.canvas.empty": "붓으로 영역을 선택해 만드세요",
+  "qwertys_painter.tooltip.canvas.empty": "빈 캔버스: 블록을 우클릭해 영역 선택",
   "qwertys_painter.tooltip.canvas.from": "시작: %s, %s, %s",
   "qwertys_painter.tooltip.canvas.to": "끝: %s, %s, %s",
   "qwertys_painter.tooltip.canvas.face": "면: %s",
@@ -78,5 +78,10 @@
   "qwertys_painter.gui.move_left": "왼쪽",
   "qwertys_painter.gui.move_right": "오른쪽",
   "qwertys_painter.gui.move_up": "위로",
-  "qwertys_painter.gui.move_down": "아래로"
+  "qwertys_painter.gui.move_down": "아래로",
+  "qwertys_painter.msg.canvas_reset": "캔버스 영역을 비웠습니다",
+  "qwertys_painter.msg.canvas_empty": "빈 캔버스입니다. 블록을 우클릭해 영역을 고르세요 (첫 지점 → 마지막 지점 → 첫 지점 다시)",
+  "qwertys_painter.msg.canvas_ready": "캔버스 준비 완료: %s×%s (%s쪽 면) — 우클릭하면 사진 채우기 창이 열립니다",
+  "qwertys_painter.tooltip.canvas.empty2": "첫 지점 → 마지막 지점 → 첫 지점 다시 클릭",
+  "qwertys_painter.tooltip.canvas.reset": "웅크리고 허공 우클릭: 영역 비우기"
 }

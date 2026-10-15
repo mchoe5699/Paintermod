@@ -13,7 +13,7 @@
   "qwertys_painter.tooltip.brush.2": "Right-click the first point again: make a canvas",
   "qwertys_painter.tooltip.brush.3": "Sneak + right-click a block: edit its 6 faces",
   "qwertys_painter.tooltip.brush.4": "Sneak + right-click air: cancel selection",
-  "qwertys_painter.tooltip.canvas.empty": "Select a region with the brush to make one",
+  "qwertys_painter.tooltip.canvas.empty": "Empty canvas: right-click blocks to pick a region",
   "qwertys_painter.tooltip.canvas.from": "From: %s, %s, %s",
   "qwertys_painter.tooltip.canvas.to": "To: %s, %s, %s",
   "qwertys_painter.tooltip.canvas.face": "Face: %s",
@@ -78,5 +78,10 @@
   "qwertys_painter.gui.move_left": "Left",
   "qwertys_painter.gui.move_right": "Right",
   "qwertys_painter.gui.move_up": "Up",
-  "qwertys_painter.gui.move_down": "Down"
+  "qwertys_painter.gui.move_down": "Down",
+  "qwertys_painter.msg.canvas_reset": "Canvas region cleared",
+  "qwertys_painter.msg.canvas_empty": "Empty canvas. Right-click blocks to pick a region (first point → last point → first point again)",
+  "qwertys_painter.msg.canvas_ready": "Canvas ready: %s×%s (%s face) — right-click to open the fill screen",
+  "qwertys_painter.tooltip.canvas.empty2": "First point → last point → first point again",
+  "qwertys_painter.tooltip.canvas.reset": "Sneak + right-click air: clear the region"
 }

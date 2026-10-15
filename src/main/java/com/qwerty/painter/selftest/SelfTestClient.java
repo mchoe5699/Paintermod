@@ -54,8 +54,12 @@ public final class SelfTestClient {
     }
 
     private static void click(Minecraft mc, BlockPos pos) {
+        click(mc, pos, InteractionHand.OFF_HAND);
+    }
+
+    private static void click(Minecraft mc, BlockPos pos, InteractionHand hand) {
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos).add(0, 0, 0.5), Direction.SOUTH, pos, false);
-        mc.gameMode.useItemOn(mc.player, InteractionHand.OFF_HAND, hit);
+        mc.gameMode.useItemOn(mc.player, hand, hit);
     }
 
     /** Opens the creative inventory on the mod's tab (dev names; test only). */
@@ -143,9 +147,9 @@ public final class SelfTestClient {
                 check(ClientImageCache.loadedCount() >= 2, "textures loaded=" + ClientImageCache.loadedCount());
                 shot(mc, "selftest_world.png");
             }
-            case 420 -> ClientHooks.openFill(InteractionHand.MAIN_HAND);
+            case 420 -> mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
             case 470 -> {
-                check(mc.screen instanceof FillScreen, "fill screen opened");
+                check(mc.screen instanceof FillScreen, "right-click canvas (from brush) opens fill screen");
                 shot(mc, "selftest_fill.png");
             }
             case 480 -> mc.setScreen(new EditScreen(new BlockPos(11, Y + 1, -4), Direction.SOUTH));
@@ -167,7 +171,38 @@ public final class SelfTestClient {
                 check(mc.screen instanceof CreativeModeInventoryScreen && has, "mod creative tab shows brush and canvas");
                 shot(mc, "selftest_creative.png");
             }
-            case 670 -> {
+            case 660 -> {
+                mc.setScreen(null);
+                mc.player.getInventory().selected = 8;
+            }
+            case 664 -> {
+                ItemStack empty = mc.player.getInventory().getItem(8);
+                check(empty.is(ModItems.PAINT_CANVAS.get()) && PaintCanvasItem.region(empty) == null, "empty canvas (as from creative tab) in slot 9");
+                mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
+            }
+            case 670 -> check(mc.screen == null, "empty canvas right-click in air shows a hint, no crash");
+            case 675 -> click(mc, new BlockPos(4, Y, 2), InteractionHand.MAIN_HAND);
+            case 690 -> click(mc, new BlockPos(5, Y + 1, 2), InteractionHand.MAIN_HAND);
+            case 705 -> click(mc, new BlockPos(4, Y, 2), InteractionHand.MAIN_HAND);
+            case 725 -> {
+                PaintCanvasItem.Region r = PaintCanvasItem.region(mc.player.getInventory().getItem(8));
+                check(r != null && r.a().equals(new BlockPos(4, Y, 2)) && r.b().equals(new BlockPos(5, Y + 1, 2)),
+                        "empty canvas picked its own region");
+                mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
+            }
+            case 745 -> {
+                check(mc.screen instanceof FillScreen, "right-click that canvas opens fill screen");
+                shot(mc, "selftest_canvas_open.png");
+            }
+            case 760 -> {
+                mc.setScreen(null);
+                click(mc, new BlockPos(5, Y, 2), InteractionHand.MAIN_HAND);
+            }
+            case 780 -> {
+                check(mc.screen instanceof FillScreen, "right-click a block with that canvas also opens fill screen");
+                mc.setScreen(null);
+            }
+            case 800 -> {
                 PainterMod.LOGGER.info("SELFTEST DONE failures={}", failures);
                 File marker = new File(mc.gameDirectory, "selftest_result.txt");
                 Files.writeString(marker.toPath(), "failures=" + failures + "\n");
