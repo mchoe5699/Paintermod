@@ -2,6 +2,7 @@ package com.qwerty.painter;
 
 import com.mojang.logging.LogUtils;
 import com.qwerty.painter.item.ModItems;
+import com.qwerty.painter.item.ModTabs;
 import com.qwerty.painter.network.PainterNetwork;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -20,6 +21,7 @@ public class PainterMod {
     public PainterMod() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.ITEMS.register(modBus);
+        ModTabs.TABS.register(modBus);
         modBus.addListener(this::addCreative);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PainterConfig.SERVER_SPEC);

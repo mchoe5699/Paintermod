@@ -27,7 +27,13 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import com.qwerty.painter.item.ModItems;
+import com.qwerty.painter.item.ModTabs;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.world.item.CreativeModeTab;
+
 import java.awt.Color;
+import java.lang.reflect.Method;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,6 +56,21 @@ public final class SelfTestClient {
     private static void click(Minecraft mc, BlockPos pos) {
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos).add(0, 0, 0.5), Direction.SOUTH, pos, false);
         mc.gameMode.useItemOn(mc.player, InteractionHand.OFF_HAND, hit);
+    }
+
+    /** Opens the creative inventory on the mod's tab (dev names; test only). */
+    private static void openCreativeTab(Minecraft mc) throws Exception {
+        CreativeModeInventoryScreen screen = new CreativeModeInventoryScreen(mc.player, mc.player.connection.enabledFeatures(),
+                mc.options.operatorItemsTab().get());
+        mc.setScreen(screen);
+        for (Method m : CreativeModeInventoryScreen.class.getDeclaredMethods()) {
+            if (m.getReturnType() == void.class && m.getParameterCount() == 1 && m.getParameterTypes()[0] == CreativeModeTab.class) {
+                m.setAccessible(true);
+                m.invoke(screen, ModTabs.MAIN.get());
+                return;
+            }
+        }
+        PainterMod.LOGGER.warn("SELFTEST could not select creative tab");
     }
 
     private static int countFaces() {
@@ -139,7 +160,14 @@ public final class SelfTestClient {
                 mc.player.setPos(6.5, Y, 1.5);
             }
             case 600 -> shot(mc, "selftest_block.png");
-            case 620 -> {
+            case 610 -> openCreativeTab(mc);
+            case 650 -> {
+                boolean has = ModTabs.MAIN.get().getDisplayItems().stream().anyMatch(s -> s.is(ModItems.PAINT_BRUSH.get()))
+                        && ModTabs.MAIN.get().getDisplayItems().stream().anyMatch(s -> s.is(ModItems.PAINT_CANVAS.get()));
+                check(mc.screen instanceof CreativeModeInventoryScreen && has, "mod creative tab shows brush and canvas");
+                shot(mc, "selftest_creative.png");
+            }
+            case 670 -> {
                 PainterMod.LOGGER.info("SELFTEST DONE failures={}", failures);
                 File marker = new File(mc.gameDirectory, "selftest_result.txt");
                 Files.writeString(marker.toPath(), "failures=" + failures + "\n");

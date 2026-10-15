@@ -1,4 +1,5 @@
 {
+  "itemGroup.qwertys_painter": "QWERTY's Painter",
   "item.qwertys_painter.paint_brush": "Paint Brush",
   "item.qwertys_painter.paint_canvas": "Picture Canvas",
   "item.qwertys_painter.paint_canvas.sized": "Picture Canvas (%s×%s)",
