@@ -2,14 +2,12 @@
   "item.qwertys_painter.paint_brush": "페인트 붓",
   "item.qwertys_painter.paint_canvas": "사진 캔버스",
   "item.qwertys_painter.paint_canvas.sized": "사진 캔버스 (%s×%s)",
-
   "qwertys_painter.dir.north": "북",
   "qwertys_painter.dir.south": "남",
   "qwertys_painter.dir.east": "동",
   "qwertys_painter.dir.west": "서",
   "qwertys_painter.dir.up": "위",
   "qwertys_painter.dir.down": "아래",
-
   "qwertys_painter.tooltip.brush.1": "우클릭: 첫 지점 → 마지막 지점 선택",
   "qwertys_painter.tooltip.brush.2": "첫 지점을 다시 우클릭: 사진 캔버스 생성",
   "qwertys_painter.tooltip.brush.3": "웅크리고 블록 우클릭: 블록 6면 개별 편집",
@@ -19,7 +17,6 @@
   "qwertys_painter.tooltip.canvas.to": "끝: %s, %s, %s",
   "qwertys_painter.tooltip.canvas.face": "면: %s",
   "qwertys_painter.tooltip.canvas.use": "우클릭하여 사진 채우기",
-
   "qwertys_painter.msg.first_point": "첫 지점: %s, %s, %s (%s쪽 면) — 마지막 지점을 클릭하세요",
   "qwertys_painter.msg.last_point": "마지막 지점: %s, %s, %s (%s×%s) — 첫 지점을 다시 클릭하면 캔버스 생성",
   "qwertys_painter.msg.canvas_created": "사진 캔버스 생성: %s×%s (%s쪽 면)",
@@ -32,7 +29,6 @@
   "qwertys_painter.msg.image_invalid": "사진을 저장하지 못했습니다",
   "qwertys_painter.msg.filled": "블록 면 %s개에 사진을 채웠습니다",
   "qwertys_painter.msg.cleared": "영역의 사진을 지웠습니다",
-
   "qwertys_painter.gui.fill_title": "사진 채우기",
   "qwertys_painter.gui.fill_info": "영역 %s×%s · %s쪽 면 · 회전 %s°",
   "qwertys_painter.gui.edit_title": "블록 면 편집",
@@ -41,7 +37,7 @@
   "qwertys_painter.gui.pick_title": "사진 선택",
   "qwertys_painter.gui.pick_filter": "이미지 파일 (png, jpg, bmp, gif)",
   "qwertys_painter.gui.path": "파일 경로",
-  "qwertys_painter.gui.path_hint": "경로 입력 또는 파일 끌어놓기",
+  "qwertys_painter.gui.path_hint": "경로 입력",
   "qwertys_painter.gui.load": "불러오기",
   "qwertys_painter.gui.loaded": "%s (%s×%s) 불러옴",
   "qwertys_painter.gui.load_failed": "사진을 불러오지 못했습니다 (png, jpg, bmp, gif만 가능)",
@@ -75,5 +71,11 @@
   "qwertys_painter.gui.delete_face": "이 면 지우기",
   "qwertys_painter.gui.face_empty": "이 면에는 사진이 없습니다. 먼저 사진을 선택하세요",
   "qwertys_painter.gui.face_empty_short": "비어 있음",
-  "qwertys_painter.gui.loading": "불러오는 중…"
+  "qwertys_painter.gui.loading": "불러오는 중…",
+  "qwertys_painter.gui.zoom_in": "확대",
+  "qwertys_painter.gui.zoom_out": "축소",
+  "qwertys_painter.gui.move_left": "왼쪽",
+  "qwertys_painter.gui.move_right": "오른쪽",
+  "qwertys_painter.gui.move_up": "위로",
+  "qwertys_painter.gui.move_down": "아래로"
 }

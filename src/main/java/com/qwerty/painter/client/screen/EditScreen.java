@@ -78,18 +78,18 @@ public class EditScreen extends PictureScreen {
         addRenderableWidget(Button.builder(Component.translatable("qwertys_painter.gui.load"), b -> loadFromPathBox())
                 .bounds(right + 108, y, 46, 20).build());
         y += 22;
-        op("↺", y, 0, FaceData::rotateCCW);
-        op("↻", y, 1, FaceData::rotateCW);
+        op("-90°", y, 0, FaceData::rotateCCW);
+        op("+90°", y, 1, FaceData::rotateCW);
         opKey("qwertys_painter.gui.flip_h", y, 2, FaceData::flipH);
         opKey("qwertys_painter.gui.flip_v", y, 3, FaceData::flipV);
         y += 22;
-        op("+", y, 0, f -> f.zoom(0.8f));
-        op("-", y, 1, f -> f.zoom(1.25f));
-        op("◀", y, 2, f -> f.pan(-0.1f, 0));
-        op("▶", y, 3, f -> f.pan(0.1f, 0));
+        opKey("qwertys_painter.gui.zoom_in", y, 0, f -> f.zoom(0.8f));
+        opKey("qwertys_painter.gui.zoom_out", y, 1, f -> f.zoom(1.25f));
+        opKey("qwertys_painter.gui.move_left", y, 2, f -> f.pan(-0.1f, 0));
+        opKey("qwertys_painter.gui.move_right", y, 3, f -> f.pan(0.1f, 0));
         y += 22;
-        op("▲", y, 0, f -> f.pan(0, -0.1f));
-        op("▼", y, 1, f -> f.pan(0, 0.1f));
+        opKey("qwertys_painter.gui.move_up", y, 0, f -> f.pan(0, -0.1f));
+        opKey("qwertys_painter.gui.move_down", y, 1, f -> f.pan(0, 0.1f));
         glowButton = addRenderableWidget(Button.builder(Component.empty(), b -> transform(f -> f.withGlow(!f.glow)))
                 .bounds(right + 78, y, 76, 20).build());
         needsPicture.add(glowButton);

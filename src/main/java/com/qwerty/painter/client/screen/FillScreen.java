@@ -62,9 +62,9 @@ public class FillScreen extends PictureScreen {
         addRenderableWidget(Button.builder(Component.translatable("qwertys_painter.gui.load"), b -> loadFromPathBox())
                 .bounds(left + 108, r2, 46, 20).build());
 
-        addRenderableWidget(Button.builder(Component.literal("↺"), b -> { rotation = (rotation + 3) & 3; syncBoxes(); })
+        addRenderableWidget(Button.builder(Component.literal("-90°"), b -> { rotation = (rotation + 3) & 3; syncBoxes(); })
                 .bounds(left, r3, 37, 20).build());
-        addRenderableWidget(Button.builder(Component.literal("↻"), b -> { rotation = (rotation + 1) & 3; syncBoxes(); })
+        addRenderableWidget(Button.builder(Component.literal("+90°"), b -> { rotation = (rotation + 1) & 3; syncBoxes(); })
                 .bounds(left + 39, r3, 37, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("qwertys_painter.gui.flip_h"), b -> flipH = !flipH)
                 .bounds(left + 78, r3, 37, 20).build());

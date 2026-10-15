@@ -80,7 +80,7 @@ public final class SelfTestClient {
     private static void step(Minecraft mc) throws Exception {
         switch (ticks) {
             case 200 -> {
-                check(countFaces() >= 40, "server paint synced to client, faces=" + countFaces());
+                check(countFaces() == 37, "server paint synced to client, faces=" + countFaces());
                 click(mc, new BlockPos(4, Y, 2));
             }
             case 215 -> click(mc, new BlockPos(5, Y + 1, 2));

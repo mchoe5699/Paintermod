@@ -58,7 +58,7 @@ jobs:
       - name: Client in-game test
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q xvfb libgl1-mesa-dri > /dev/null
-          printf 'onboardAccessibility:false\npauseOnLostFocus:false\nrenderDistance:6\nsimulationDistance:6\ntutorialStep:none\nskipMultiplayerWarning:true\n' > run/options.txt
+          printf 'lang:ko_kr\nonboardAccessibility:false\npauseOnLostFocus:false\nrenderDistance:6\nsimulationDistance:6\ntutorialStep:none\nskipMultiplayerWarning:true\n' > run/options.txt
           export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5 PAINTER_SELFTEST=1
           timeout 1200 xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew runClient --no-daemon > /tmp/selftest/client-gradle.log 2>&1 || true
           cp run/logs/latest.log /tmp/selftest/client.log || true
