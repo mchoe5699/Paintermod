@@ -212,6 +212,11 @@ public class FillScreen extends PictureScreen {
         setStatus(Component.translatable("qwertys_painter.gui.cleared"), OK);
     }
 
+    /** Used by the automated self test. */
+    public static void setPicture(ImagePicker.Prepared picture) {
+        lastPicked = picture;
+    }
+
     @Override
     protected void onPicked(ImagePicker.Prepared picture) {
         syncBoxes();

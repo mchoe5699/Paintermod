@@ -36,3 +36,44 @@ jobs:
           git add -A
           git commit -q -m "Build ${GITHUB_SHA::7}"
           git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" jar
+
+      # ---------- in-game test: dedicated server start, then a real client joining a world
+      - name: Server start test (also creates the test world)
+        run: |
+          mkdir -p run/saves /tmp/selftest
+          echo "eula=true" > run/eula.txt
+          printf 'online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\n' > run/server.properties
+          ./gradlew runServer --no-daemon > /tmp/selftest/server-gradle.log 2>&1 &
+          ok=0
+          for i in $(seq 1 120); do
+            if grep -q 'Done (' run/logs/latest.log 2>/dev/null; then ok=1; break; fi
+            sleep 5
+          done
+          sleep 5
+          pkill -TERM -f BootstrapLauncher || true
+          sleep 25
+          cp run/logs/latest.log /tmp/selftest/server.log || true
+          cp -r run/world run/saves/world
+          test "$ok" = "1"
+      - name: Client in-game test
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q xvfb libgl1-mesa-dri > /dev/null
+          printf 'onboardAccessibility:false\npauseOnLostFocus:false\nrenderDistance:6\nsimulationDistance:6\ntutorialStep:none\nskipMultiplayerWarning:true\n' > run/options.txt
+          export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5 PAINTER_SELFTEST=1
+          timeout 1200 xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew runClient --no-daemon > /tmp/selftest/client-gradle.log 2>&1 || true
+          cp run/logs/latest.log /tmp/selftest/client.log || true
+          cp run/screenshots/selftest_*.png /tmp/selftest/ 2>/dev/null || true
+          cp run/selftest_result.txt /tmp/selftest/ 2>/dev/null || true
+          cp -r run/crash-reports /tmp/selftest/ 2>/dev/null || true
+          grep "SELFTEST" run/logs/latest.log || true
+          grep -q "failures=0" run/selftest_result.txt
+      - name: Publish test results to the 'selftest' branch
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          cd /tmp/selftest
+          git init -q -b selftest
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Self test ${GITHUB_SHA::7}" || exit 0
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" selftest

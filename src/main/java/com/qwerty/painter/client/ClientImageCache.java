@@ -28,6 +28,10 @@ public final class ClientImageCache {
 
     private ClientImageCache() {}
 
+    public static int loadedCount() {
+        return LOADED.size();
+    }
+
     @Nullable
     public static ResourceLocation get(String id) {
         return LOADED.get(id);

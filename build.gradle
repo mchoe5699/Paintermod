@@ -27,7 +27,12 @@ minecraft {
                 }
             }
         }
-        client {}
+        client {
+            if (System.getenv('PAINTER_SELFTEST')) {
+                property 'qwertys_painter.selftest', 'true'
+                args '--quickPlaySingleplayer', 'world'
+            }
+        }
         server {
             args '--nogui'
         }

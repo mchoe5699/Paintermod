@@ -44,6 +44,9 @@ public final class ClientEvents {
 
     private record Quad(int x, int y, int z, Direction dir, FaceData data, int light) {}
 
+    /** Number of painted faces drawn in the last frame (used by the self test). */
+    public static int lastFrameFaces;
+
     private ClientEvents() {}
 
     @SubscribeEvent
@@ -68,6 +71,7 @@ public final class ClientEvents {
     }
 
     private static void renderPaint(ClientLevel level, PoseStack ps, MultiBufferSource.BufferSource buffers, Vec3 cam) {
+        lastFrameFaces = 0;
         Map<Long, Map<Long, FaceData[]>> dim = ClientPaintStore.forDim(level.dimension());
         if (dim == null || dim.isEmpty()) return;
         int dist = PainterConfig.get(PainterConfig.RENDER_DISTANCE, 128);
@@ -113,6 +117,7 @@ public final class ClientEvents {
         for (Map.Entry<ResourceLocation, List<Quad>> e : byTexture.entrySet()) {
             VertexConsumer vc = buffers.getBuffer(RenderType.entityCutoutNoCull(e.getKey()));
             for (Quad q : e.getValue()) emitFace(vc, m, n, q, cam);
+            lastFrameFaces += e.getValue().size();
             buffers.endBatch(RenderType.entityCutoutNoCull(e.getKey()));
         }
     }
